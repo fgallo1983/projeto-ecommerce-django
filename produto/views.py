@@ -12,9 +12,11 @@ class ListaProdutos(ListView):
     paginate_by = 10
     ordering = ['-id']
     
-class DetalheProduto(View):
-    def get(self, *args, **kwargs):
-        return HttpResponse('detalhes prouto')
+class DetalheProduto(DetailView):
+    model = models.Produto
+    template_name = 'produto/detalhe.html'
+    context_object_name = 'produto'
+    slug_url_kwarg = 'slug'
 
 class AdicionarAoCarrinho(View):
     def get(self, *args, **kwargs):
