@@ -39,7 +39,7 @@ class AdicionarAoCarrinho(View):
         variacao_estoque = variacao.estoque
         produto = variacao.produto
 
-        produto_id = produto.id
+        produto_id = produto.id #type:ignore
         produto_nome = produto.nome
         variacao_nome = variacao.nome or ''
         preco_unitario = variacao.preco
@@ -147,6 +147,6 @@ class Carrinho(View):
 
         return render(self.request, 'produto/carrinho.html', contexto)
 
-class Finalizar(View):
+class ResumoDaCompra(View):
     def get(self, *args, **kwargs):
         return HttpResponse('finalziar')
