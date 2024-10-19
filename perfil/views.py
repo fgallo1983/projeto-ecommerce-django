@@ -7,6 +7,7 @@ from . import forms
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 import copy
+from django.contrib import messages
 
 class BasePerfil(View):
     template_name = 'perfil/criar.html'
@@ -112,7 +113,18 @@ class Criar(BasePerfil):
             
         self.request.session['carrinho'] = self.carrinho
         self.request.session.save()
+        
+        messages.success(
+            self.request,
+            'Seu cadastro foi criado ou atualizado com sucesso.'
+        )
+
+        messages.success(
+            self.request,
+            'Você fez login e pode concluir sua compra.'
+        )
             
+        return redirect('perfil:criar')
         return self.renderizar
 
 class Atualizar(View):
@@ -120,9 +132,42 @@ class Atualizar(View):
         return HttpResponse('atruwlkzar')
 
 class Login(View):
-    def get(self, *args, **kwargs):
-        return HttpResponse('login')
+    def post(self, *args, **kwargs):
+        username = self.request.POST.get('username')
+        password = self.request.POST.get('password')
+        
+        if not username or not password:
+            messages.error(
+                self.request,
+                'Usuário ou senha inválidos.'
+            )
+            return redirect('perfil:criar')
+        
+        usuario = authenticate(
+            self.request, username=username, password=password)
+
+        if not usuario:
+            messages.error(
+                self.request,
+                'Usuário ou senha inválidos.'
+            )
+            return redirect('perfil:criar')
+
+        login(self.request, user=usuario)
+
+        messages.success(
+            self.request,
+            'Você fez login no sistema e pode concluir sua compra.'
+        )
+        return redirect('produto:carrinho')
 
 class Logout(View):
     def get(self, *args, **kwargs):
-        return HttpResponse('logout')
+        carrinho = copy.deepcopy(self.request.session.get('carrinho'))
+
+        logout(self.request)
+
+        self.request.session['carrinho'] = carrinho
+        self.request.session.save()
+
+        return redirect('produto:lista')
