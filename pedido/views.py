@@ -8,7 +8,19 @@ from utils import utils
 from django.urls import reverse
 from django.views.generic import ListView, DetailView
 
-class Pagar(DetailView):
+class DispatchLoginRequiredMixin(View):
+    def dispatch(self, *args, **kwargs):
+        if not self.request.user.is_authenticated:
+            return redirect('perfil:criar')
+
+        return super().dispatch(*args, **kwargs)
+    
+    def get_queryset(self, *args, **kwargs):
+        qs = super().get_queryset(*args, **kwargs) #type:ignore
+        qs = qs.filter(usuario=self.request.user)
+        return qs
+
+class Pagar(DispatchLoginRequiredMixin, DetailView):
     template_name = 'pedido/pagar.html'
     model = Pedido
     pk_url_kwarg = 'pk'
